@@ -29,6 +29,7 @@ resource "aws_lb" "lb" {
 resource "aws_lb_target_group" "main" {
   count  = var.create_lb ? length(var.lb_target_groups) : 0
   vpc_id = var.vpc_id
+  name   = try(var.lb_target_groups[count.index].name, null)
 
   port             = try(var.lb_target_groups[count.index].backend_port, null)
   protocol         = try(var.lb_target_groups[count.index].backend_protocol, null)
@@ -46,8 +47,7 @@ resource "aws_lb_target_group" "main" {
   load_balancing_cross_zone_enabled  = try(var.lb_target_groups[count.index].load_balancing_cross_zone_enabled, null)
 
   dynamic "health_check" {
-    for_each = try([
-    var.lb_target_groups[count.index].health_check], [])
+    for_each = try([var.lb_target_groups[count.index].health_check], [])
 
     content {
       enabled             = try(health_check.value.enabled, null)
@@ -74,7 +74,7 @@ resource "aws_lb_target_group" "main" {
   }
 
   lifecycle {
-    create_before_destroy = true
+    create_before_destroy = false
   }
   tags = merge({
     Name = "${var.lb_name}-alb-tg"
@@ -89,19 +89,15 @@ resource "aws_lb_listener" "http_listener" {
   protocol          = var.http_tcp_listeners[count.index]["protocol"]
 
   dynamic "default_action" {
-    for_each = length(keys(var.http_tcp_listeners[count.index])) == 0 ? [] : [
-    var.http_tcp_listeners[count.index]]
+    for_each = length(keys(var.http_tcp_listeners[count.index])) == 0 ? [] : [var.http_tcp_listeners[count.index]]
 
     # Defaults to forward action if action_type not specified
     content {
-      type = lookup(default_action.value, "action_type", "forward")
-      target_group_arn = contains([
-        null,
-      ""], lookup(default_action.value, "action_type", "")) ? aws_lb_target_group.main[lookup(default_action.value, "target_group_index", count.index)].id : null
+      type             = lookup(default_action.value, "action_type", "forward")
+      target_group_arn = contains([null, ""], lookup(default_action.value, "action_type", "")) ? aws_lb_target_group.main[lookup(default_action.value, "target_group_index", count.index)].id : null
 
       dynamic "redirect" {
-        for_each = length(keys(lookup(default_action.value, "redirect", {}))) == 0 ? [] : [
-        lookup(default_action.value, "redirect", {})]
+        for_each = length(keys(lookup(default_action.value, "redirect", {}))) == 0 ? [] : [lookup(default_action.value, "redirect", {})]
 
         content {
           path        = lookup(redirect.value, "path", null)
@@ -114,8 +110,7 @@ resource "aws_lb_listener" "http_listener" {
       }
 
       dynamic "fixed_response" {
-        for_each = length(keys(lookup(default_action.value, "fixed_response", {}))) == 0 ? [] : [
-        lookup(default_action.value, "fixed_response", {})]
+        for_each = length(keys(lookup(default_action.value, "fixed_response", {}))) == 0 ? [] : [lookup(default_action.value, "fixed_response", {})]
 
         content {
           content_type = fixed_response.value["content_type"]
@@ -125,8 +120,7 @@ resource "aws_lb_listener" "http_listener" {
       }
 
       dynamic "forward" {
-        for_each = length(keys(lookup(default_action.value, "forward", {}))) == 0 ? [] : [
-        lookup(default_action.value, "forward", {})]
+        for_each = length(keys(lookup(default_action.value, "forward", {}))) == 0 ? [] : [lookup(default_action.value, "forward", {})]
 
         content {
           dynamic "target_group" {
@@ -139,8 +133,7 @@ resource "aws_lb_listener" "http_listener" {
           }
 
           dynamic "stickiness" {
-            for_each = length(keys(lookup(forward.value, "stickiness", {}))) == 0 ? [] : [
-            lookup(forward.value, "stickiness", {})]
+            for_each = length(keys(lookup(forward.value, "stickiness", {}))) == 0 ? [] : [lookup(forward.value, "stickiness", {})]
 
             content {
               enabled  = lookup(stickiness.value, "enabled", false)
@@ -194,19 +187,24 @@ resource "aws_lb_listener" "alb_listener_http" {
   }
 }*/
 
-/*resource "aws_lb_listener_rule" "alb_listener_http_rule_forwarding_path" {
-  listener_arn = aws_lb_listener.alb_listener_http.arn
-  priority     = 100
+resource "aws_lb_listener_rule" "http_listener_rule" {
+  count        = var.create_lb ? length(var.http_listener_rule) : 0
+  listener_arn = aws_lb_listener.http_listener[count.index].arn
+  priority     = var.http_listener_rule[count.index]["priority"] //100
 
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.alb_tg1.arn
+  dynamic "action" {
+    for_each = length(keys(var.http_listener_rule[count.index])) == 0 ? [] : [var.http_listener_rule[count.index]]
+    content {
+      type             = lookup(action.value, "type", "forward")
+      target_group_arn = contains([null, ""], lookup(action.value, "type", "")) ? aws_lb_target_group.main[lookup(action.value, "target_group_index", count.index)].id : null
+    }
   }
 
   condition {
     path_pattern {
-      values = [
-      var.app_path]
+      values = var.http_listener_rule[count.index]["path_pattern"]
     }
   }
-}*/
+
+  depends_on = [aws_lb_listener.http_listener, aws_lb_target_group.main]
+}

@@ -4,6 +4,7 @@ resource "aws_subnet" "private" {
   cidr_block = var.private_subnet_cidrs[count.index]
 
   map_public_ip_on_launch = var.map_public_ip_on_launch_private_subnets
+  availability_zone       = var.availability_zone[count.index]
 
   tags = merge({
     Name = format("%s-Private-subnet-%s", var.private_subnet_name, count.index)

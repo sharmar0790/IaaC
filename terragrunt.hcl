@@ -23,7 +23,7 @@ locals {
   organization = "local-practice"
   org_project = "local-dev"
 
-  //  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
   env_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   //  generators = read_terragrunt_config(find_in_parent_folders("generators.hcl"))
   //  project_vars = read_terragrunt_config(find_in_parent_folders("project.hcl"))
@@ -46,10 +46,7 @@ locals {
       org_project = local.org_project,
       Terraform = "true"
     },
-    //    local.account_vars.locals.labels,
     local.env_vars.locals.tags
-    //    local.project_vars.locals.labels,
-    //    local.service_vars.locals.labels
     )
   }
 
@@ -124,6 +121,7 @@ generate "versions" {
 }
 
 inputs = merge(
-local.env_vars.inputs,
-local.tags_map
+    local.env_vars.inputs,
+    local.account_vars.inputs,
+    local.tags_map
 )

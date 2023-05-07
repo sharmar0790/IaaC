@@ -35,7 +35,7 @@ module "alb" {
   source = "../../../../modules/aws/elb/alb"
 
   lb_security_groups = [
-  module.alb_sg.sg_id]
+  module.alb_sg.security_group_id]
   lb_name            = var.lb_name
   public_subnet_ids  = module.public_subnets.subnet_ids
   tags               = var.tags

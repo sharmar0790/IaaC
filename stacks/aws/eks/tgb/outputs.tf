@@ -73,6 +73,18 @@ output "aws_iam_openid_connect_provider_extract_from_arn" {
   value = module.eks_cluster.aws_iam_openid_connect_provider_extract_from_arn
 }
 
+output "load_balancer_arn" {
+  value = module.alb.lb_arn
+}
+
+output "target_group_arn" {
+  value = module.alb.target_group_arn
+}
+
+output "alb_security_group_id" {
+  value = module.alb_security_group.security_group_id
+}
+
 output "cluster_connect_command" {
   value = "aws eks --region eu-west-2 update-kubeconfig --name ${module.eks_cluster.eks_cluster_name}"
 }

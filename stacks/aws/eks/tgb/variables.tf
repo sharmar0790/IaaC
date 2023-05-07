@@ -1,14 +1,5 @@
-variable "instance_tenancy" {
-  type    = string
-  default = "default"
-}
-
 variable "vpc_cidr" {
   type = string
-}
-
-variable "create_lb" {
-  type = bool
 }
 
 variable "enable_dns_hostnames" {
@@ -23,19 +14,11 @@ variable "enable_dns_support" {
   type = bool
 }
 
-variable "public_subnet_cidr" {
+variable "public_subnet_cidrs" {
   type = list(string)
-  default = [
-    "10.0.1.0/24",
-  "10.0.2.0/24"]
 }
 
 variable "tags" {
-  type    = map(string)
-  default = {}
-}
-
-variable "node_group_additional_tags" {
   type    = map(string)
   default = {}
 }
@@ -60,10 +43,6 @@ variable "enabled_cluster_log_types" {
 
 variable "public_subnet_tags" {
   type = map(string)
-}
-
-variable "eks_cluster_version" {
-  type = string
 }
 
 variable "eks_cluster_addons" {
@@ -95,56 +74,47 @@ variable "kubernetes_taints" {
 variable "endpoint_public_access" {
   default = true
 }
-variable "alb_sg_name" {}
-variable "lb_name" {}
-variable "alb_sg_description" {}
+variable "create_node_group" {
+  type = bool
+}
+variable "public_subnet_node_groups" {
+  type    = any
+  default = {}
+}
 
-//variable "ingress_egress_rules" {
-//  type = map(object({
-//    ingress = object({
-//      from_port = number
-//      to_port = number
-//      protocol = string
-//      cidr_blocks = set(string)
-//      ipv6_cidr_blocks = set(string)
-//      security_groups = set(string)
-//    }),
-//    egress = object({
-//      from_port = number
-//      to_port = number
-//      protocol = string
-//      cidr_blocks = set(string)
-//      ipv6_cidr_blocks = set(string)
-//    })
-//  }))
-//  /*default = {
-//    "Sample Rule" = {
-//      ingress = {
-//        from_port = 0
-//        to_port = 0
-//        protocol = "tcp"
-//        cidr_blocks = [
-//          "0.0.0.0/0"]
-//        ipv6_cidr_blocks = [
-//          "::/0"]
-//        security_groups = []
-//      },
-//      egress = {
-//        from_port = 0
-//        to_port = 0
-//        protocol = "tcp"
-//        cidr_blocks = [
-//          "0.0.0.0/0"]
-//        ipv6_cidr_blocks = [
-//          "::/0"]
-//      }
-//    }
-//  }*/
-//}
+variable "private_subnet_node_groups" {
+  type    = any
+  default = {}
+}
 
-variable "metadata_name" {}
-variable "serviceref_name" {}
-variable "serviceref_port" {}
+variable "private_subnet_tags" {
+  type    = map(string)
+  default = {}
+}
+
+variable "enable_nat_gw" {
+  type = bool
+}
+
+variable "eks_security_groups" {
+  type = any
+}
+
+variable "elb_security_groups" {
+  type    = any
+  default = []
+}
+
+variable "private_subnet_cidrs" {
+  type    = list(string)
+  default = []
+}
+
+variable "single_nat_gw" {
+  type    = bool
+  default = false
+}
+
 variable "lb_target_groups" {
   description = "A list of maps containing key/value pairs that define the target groups to be created. Order of these maps is important and the index of these are to be referenced in listener definitions. Required key/values: name, backend_protocol, backend_port"
   type        = any
@@ -154,5 +124,16 @@ variable "http_tcp_listeners" {
   type = any
 }
 
+variable "http_listener_rule" {
+  type = any
+}
 
+variable "load_balancer_name" {
+  type    = string
+  default = ""
+}
 
+variable "create_lb" {
+  type    = bool
+  default = false
+}

@@ -1,11 +1,11 @@
 locals {
-  stack_name = "lb-controller"
-  eks_cluster_name = "${local.stack_name}-${include.locals.env_name}-EKS-CLUSTER"
+  stack_name = "target-group-example"
+  eks_cluster_name = "${local.stack_name}-${include.locals.env_name}-CLUSTER"
   vpc_name = "${local.stack_name}-${include.locals.env_name}-VPC"
 }
 
 terraform {
-  source = "${get_parent_terragrunt_dir()}//stacks/aws/eks/lb-controller"
+  source = "${get_parent_terragrunt_dir()}//stacks/aws/eks/tgb"
 }
 
 include {
@@ -54,26 +54,17 @@ inputs = {
   eks_cluster_name = local.eks_cluster_name
   eks_security_groups = [
     {
-      name = "${local.eks_cluster_name}-EKS-kappa"
-      description = "${local.eks_cluster_name}-EKS"
+      name = local.eks_cluster_name
+      description = local.eks_cluster_name
       ingress = [
         {
-          from_port = 8443
-          protocol = "tcp"
-          to_port = 8443
-          self = true
-          cidr_blocks = ["0.0.0.0/0"]
-          ipv6_cidr_blocks = ["::/0"]
-          description = "EKS-Ingress-8443"
-        },
-        {
           from_port = 0
-          protocol = "tcp"
+          protocol = "-1"
           to_port = 0
           self = true
-          cidr_blocks = ["0.0.0.0/0"]
-          ipv6_cidr_blocks = ["::/0"]
-          description = "EKS-Ingress-0"
+//          cidr_blocks = ["0.0.0.0/0"]
+//          ipv6_cidr_blocks = ["::/0"]
+          description = "EKS-Ingress"
         }
       ]
       egress = {
@@ -113,10 +104,80 @@ inputs = {
         max_unavailable = 1
       }
       additional_tags = {
-        Name = "Karpenter-Example"
         "eks.amazonaws.com/capacityType" = "SPOT"
         "kubernetes.io/cluster/${local.eks_cluster_name}" = "owned"
       }
+    }
+  ]
+
+
+  create_lb = true
+  load_balancer_name = local.stack_name
+
+  elb_security_groups = [
+    {
+      name = "${local.stack_name}-ALB"
+      description = "${local.stack_name}-ALB"
+      ingress = [
+        {
+          from_port = 0
+          protocol = "-1"
+          to_port = 0
+          self = true
+          cidr_blocks = ["0.0.0.0/0"]
+          ipv6_cidr_blocks = ["::/0"]
+          description = "Load Balancer Incoming Requests"
+        }
+      ]
+      egress = {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+        ipv6_cidr_blocks = ["::/0"]
+        description = "Load Balancer Outgoing Response"
+      }
+    }
+  ]
+
+  lb_target_groups = [
+    {
+      name = "parking-lot-tg"
+      backend_port = "9090"
+      backend_protocol = "HTTP"
+      target_type = "ip"
+      stickiness = {
+        enabled = true
+        type = "lb_cookie"
+        cookie_duration = 60
+      }
+      health_check = {
+        enabled = true
+        interval = 30
+        path = "/api/v1/health"
+        port = "traffic-port"
+        healthy_threshold = 3
+        unhealthy_threshold = 3
+        timeout = 5
+      }
+    }
+  ]
+
+  http_tcp_listeners = [
+    {
+      port = "80"
+      protocol = "HTTP"
+      //action_type = "forward"
+      target_group_index = 0
+    }
+  ]
+
+  http_listener_rule = [
+    {
+      priority = 100
+      //action_type = "forward"
+      target_group_index = 0
+      path_pattern = ["/api/v1/","/api/v1/*"]
     }
   ]
 }

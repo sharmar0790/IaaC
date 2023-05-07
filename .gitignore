@@ -23,3 +23,5 @@ out/
 
 # decrypted secrets
 secrets/*dec*
+
+*.pem

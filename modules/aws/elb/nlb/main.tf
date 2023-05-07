@@ -35,8 +35,7 @@ resource "aws_lb_target_group" "main" {
   target_type      = try(var.lb_target_groups[count.index].target_type, null)
 
   dynamic "health_check" {
-    for_each = try([
-    var.lb_target_groups[count.index].health_check], [])
+    for_each = try([var.lb_target_groups[count.index].health_check], [])
 
     content {
       enabled             = try(health_check.value.enabled, null)
@@ -83,10 +82,8 @@ resource "aws_lb_listener" "http_listener" {
     var.http_tcp_listeners[count.index]]
 
     content {
-      type = lookup(default_action.value, "action_type", "forward")
-      target_group_arn = contains([
-        null,
-      ""], lookup(default_action.value, "action_type", "")) ? aws_lb_target_group.main[lookup(default_action.value, "target_group_index", count.index)].id : null
+      type             = lookup(default_action.value, "action_type", "forward")
+      target_group_arn = contains([null, ""], lookup(default_action.value, "action_type", "")) ? aws_lb_target_group.main[lookup(default_action.value, "target_group_index", count.index)].id : null
 
       dynamic "fixed_response" {
         for_each = length(keys(lookup(default_action.value, "fixed_response", {}))) == 0 ? [] : [

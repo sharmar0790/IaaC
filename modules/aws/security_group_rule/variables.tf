@@ -7,15 +7,18 @@ variable "from_port" {
   type    = number
 }
 variable "to_port" {
-  default = 65535
+  default = 0
   type    = number
 }
 variable "protocol" {
-  default = "tcp"
+  default = "-1"
   type    = string
 }
 variable "destination_security_group_id" {
   type    = string
   default = ""
 }
-variable "source_security_group_id" {}
+variable "source_security_group_id" {
+  type    = string
+  default = ""
+}

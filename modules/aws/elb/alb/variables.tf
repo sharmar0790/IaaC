@@ -73,3 +73,8 @@ variable "https_listeners" {
   type    = any
   default = []
 }
+
+variable "http_listener_rule" {
+  type    = any
+  default = []
+}

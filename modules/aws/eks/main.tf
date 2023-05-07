@@ -46,10 +46,9 @@ data "template_file" "config" {
 }
 
 resource "local_file" "config" {
-  content  = data.template_file.config.rendered
-  filename = "${path.module}/${var.cluster_name}_config"
-  depends_on = [
-  aws_eks_cluster.main]
+  content    = data.template_file.config.rendered
+  filename   = "${path.module}/${var.cluster_name}_config"
+  depends_on = [aws_eks_cluster.main]
   //filename = pathexpand("~/.kube/${local.cluster_name}-config")
 }
 

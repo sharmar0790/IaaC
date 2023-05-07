@@ -16,7 +16,7 @@ inputs = {
   enable_dns_support = false
 
   sg_name = "${include.locals.organization}-${include.locals.env_name}"
-  sg_description = "Security group - VPC - PS - NLB"
+  sg_description = "Security group - VPC - PS - ALB"
   create_lb = true
 
   lb_target_groups = [
