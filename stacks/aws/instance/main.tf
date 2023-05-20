@@ -3,7 +3,7 @@ data "aws_vpc" "default" {
 }
 
 module "ec2_instance" {
-  source = "../../../modules/aws/ec2-instances"
+  source = "../../../modules/aws/ec2-instance"
 
   owners                   = var.owners
   tags                     = var.tags

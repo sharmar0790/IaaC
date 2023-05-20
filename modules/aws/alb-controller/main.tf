@@ -58,7 +58,6 @@ resource "helm_release" "loadbalancer_controller" {
     value = var.eks_cluster_name
   }
 
-  depends_on = [
-  aws_iam_role.lbc_iam_role]
+  depends_on = [aws_iam_role.lbc_iam_role]
 
 }

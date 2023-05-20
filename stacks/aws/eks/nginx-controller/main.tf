@@ -52,52 +52,22 @@ module "eks_cluster" {
 
   vpc_name = var.vpc_name
 
-  depends_on = [
-  module.vpc]
+  depends_on = [module.vpc]
 }
 
-module "load-balancer-controller" {
-  source = "../../../../modules/aws/alb-controller"
+module "bastion_host" {
+  count  = var.enable_bastion_host ? 1 : 0
+  source = "../../../../modules/aws/ec2-instance"
 
-  aws_iam_openid_connect_provider_arn              = module.eks_cluster.aws_iam_openid_connect_provider_arn
-  aws_iam_openid_connect_provider_extract_from_arn = module.eks_cluster.aws_iam_openid_connect_provider_extract_from_arn
-  eks_cluster_name                                 = module.eks_cluster.eks_cluster_name
-  tags                                             = var.tags
-  vpc_id                                           = module.vpc.vpc_id
+  owners                       = var.owners
+  tags                         = var.tags
+  ami_id                       = var.ami_id
+  key_name                     = var.key_name
+  instance_type                = var.instance_type
+  subnet_id                    = module.vpc.public_subnet_ids[0]
+  instance_additional_tags     = var.instance_additional_tags
+  aws_instance_security_groups = var.aws_instance_security_groups
+  vpc_id                       = module.vpc.vpc_id
 }
 
-module "alb" {
-  source    = "../../../../modules/aws/elb/alb"
-  create_lb = var.create_lb
 
-  lb_name = var.load_balancer_name
-  tags    = var.tags
-  vpc_id  = module.vpc.vpc_id
-
-  lb_security_groups = module.alb_security_group.security_group_id
-  public_subnet_ids  = module.vpc.public_subnet_ids
-
-  lb_target_groups   = var.lb_target_groups
-  http_tcp_listeners = var.http_tcp_listeners
-
-  http_listener_rule = var.http_listener_rule
-}
-
-module "alb_security_group" {
-  source          = "../../../../modules/aws/security-group"
-  vpc_id          = module.vpc.vpc_id
-  security_groups = var.elb_security_groups
-  tags            = var.tags
-  depends_on      = [module.vpc]
-
-  sg_additional_tags = {
-    "kubernetes.io/cluster/${var.eks_cluster_name}" : "owned"
-  }
-}
-
-module "sg_rule_eks_node_alb_ingress" {
-  source = "../../../../modules/aws/security_group_rule"
-
-  destination_security_group_id = module.eks_security_group.security_group_id[0]
-  source_security_group_id      = module.alb_security_group.security_group_id[0]
-}

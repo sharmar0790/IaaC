@@ -1,0 +1,10 @@
+apiVersion: elbv2.k8s.aws/v1beta1
+kind: TargetGroupBinding
+metadata:
+  name: parking-lot-tgb
+spec:
+  serviceRef:
+    name: parking-lot-service # route traffic to the awesome-service
+    port: 80
+  targetType: ip
+  targetGroupARN: <TARGET_GROUP_ARN>

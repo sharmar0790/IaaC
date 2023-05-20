@@ -38,7 +38,9 @@ resource "aws_eks_node_group" "public_subnet_node_group" {
     }
   }
 
-  tags = merge(try(var.public_subnet_node_groups[count.index].additional_tags, null), var.tags)
+  tags = merge({
+    Name = "Public-NG-${var.private_subnet_node_groups[count.index].node_group_name}"
+  }, try(var.public_subnet_node_groups[count.index].additional_tags, null), var.tags)
 
   dynamic "update_config" {
     for_each = length(keys(lookup(var.public_subnet_node_groups[count.index], "update_config", {}))) == 0 ? [] : [
@@ -46,6 +48,10 @@ resource "aws_eks_node_group" "public_subnet_node_group" {
     content {
       max_unavailable = update_config.value["max_unavailable"]
     }
+  }
+
+  remote_access {
+    ec2_ssh_key = try(var.public_subnet_node_groups[count.index].ec2_ssh_key, null)
   }
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
   # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
@@ -105,7 +111,9 @@ resource "aws_eks_node_group" "private_subnet_node_group" {
     }
   }
 
-  tags = merge(try(var.private_subnet_node_groups[count.index].additional_tags, null), var.tags)
+  tags = merge({
+    Name = "Private-NG-${var.private_subnet_node_groups[count.index].node_group_name}"
+  }, try(var.private_subnet_node_groups[count.index].additional_tags, null), var.tags)
 
   dynamic "update_config" {
     for_each = length(keys(lookup(var.private_subnet_node_groups[count.index], "update_config", {}))) == 0 ? [] : [
@@ -114,6 +122,11 @@ resource "aws_eks_node_group" "private_subnet_node_group" {
       max_unavailable = update_config.value["max_unavailable"]
     }
   }
+
+  remote_access {
+    ec2_ssh_key = try(var.private_subnet_node_groups[count.index].ec2_ssh_key, null)
+  }
+
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
   # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
   depends_on = [

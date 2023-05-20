@@ -5,9 +5,9 @@ resource "helm_release" "addon" {
   chart                      = var.helm_config["chart"]
   version                    = try(var.helm_config["version"], null)
   timeout                    = try(var.helm_config["timeout"], 1200)
-  values                     = try(var.helm_config["values"], null)
+  values                     = [try(var.helm_config["values"], "")]
   create_namespace           = length(var.irsa_config) > 0 ? false : try(var.helm_config["create_namespace"], false)
-  namespace                  = var.helm_config["namespace"]
+  namespace                  = try(var.helm_config["namespace"], var.namespace)
   lint                       = try(var.helm_config["lint"], false)
   description                = try(var.helm_config["description"], "")
   repository_key_file        = try(var.helm_config["repository_key_file"], "")
@@ -38,7 +38,7 @@ resource "helm_release" "addon" {
 
   dynamic "set" {
     //    iterator = each_item
-    for_each = try(var.helm_config["set"], null) != null ? distinct(concat(var.set_values, var.helm_config["set"])) : var.set_values
+    for_each = try(var.helm_config["additional_set"], null) != null ? distinct(concat(var.set_values, var.helm_config["additional_set"])) : var.set_values
 
     content {
       name  = set.value["name"]
@@ -57,8 +57,7 @@ resource "helm_release" "addon" {
       type  = try(set_sensitive.value["type"], null)
     }
   }
-  depends_on = [
-  module.irsa]
+  depends_on = [module.irsa]
 }
 
 module "irsa" {

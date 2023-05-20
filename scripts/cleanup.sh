@@ -15,3 +15,9 @@ ret=$?
 if [ $ret -ne 0 ]; then
 exit $ret
 fi
+
+find . -name ".terraform" -type d -exec  rm -rf {} +
+ret=$?
+if [ $ret -ne 0 ]; then
+exit $ret
+fi

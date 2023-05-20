@@ -1,0 +1,11 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: nginx-controller
+  region: eu-west-2
+
+nodeGroups:
+  - name: ng-1
+    instanceType: t4g.medium
+    desiredCapacity: 1

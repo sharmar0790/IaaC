@@ -68,7 +68,7 @@ resource "aws_eip" "nat_eip" {
   }, var.tags)
 }
 
-//nat gateway so that instances from private subnet can be communicate to Internet
+//nat gateway so that instances from private subnet can communicate to Internet
 resource "aws_nat_gateway" "public_nat_gw" {
   count         = var.enable_nat_gw ? var.single_nat_gw ? 1 : length(var.public_subnet_cidrs) : 0
   allocation_id = aws_eip.nat_eip[count.index].id

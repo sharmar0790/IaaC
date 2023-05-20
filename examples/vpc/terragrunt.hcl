@@ -25,14 +25,12 @@ inputs = {
   // public subnet inputs
   map_public_ip_on_launch_public_subnets = true
   public_subnet_cidr = [
-    "10.0.1.0/24",
-    "10.0.2.0/24"]
+    "10.0.1.0/24"]
 
   //private subnets
   enable_nat_gw = true
   private_subnet_cidrs = [
-    "10.0.3.0/24",
-    "10.0.4.0/24"]
+    "10.0.3.0/24"]
 
   single_nat_gw = true
 }

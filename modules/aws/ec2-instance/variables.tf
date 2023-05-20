@@ -37,3 +37,16 @@ variable "user_data" {
   type    = string
   default = ""
 }
+
+variable "subnet_id" {
+  type    = string
+  default = ""
+}
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "aws_instance_security_groups" {
+  type = any
+}

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parking-lot-deployment
+  labels:
+    app.kubernetes.io/name: parking-lot
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: parking-lot
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: parking-lot
+    spec:
+      containers:
+        - name: parking-lot
+          image: <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION_CODE>.amazonaws.com/<IMAGE_REPO>:<IMAGE_TAG>
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9090
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: parking-lot-service
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /api/v1/health
+  labels:
+    app.kubernetes.io/name: parking-lot
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: parking-lot
+  ports:
+    - port: 80 #port where serive is running or listening. also called as service port
+#      protocol: TCP
+      targetPort: 9090 # application or pod or container port

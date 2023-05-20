@@ -59,7 +59,7 @@ module "eks_cluster" {
 
 
 module "cluster_autoscaler" {
-  source           = "../../../../modules/kubernetes/add-ons/cluster_auto_scaler"
+  source           = "../../../../modules/kubernetes/add-ons/cluster-auto-scaler"
   eks_cluster_name = var.eks_cluster_name
   depends_on = [
   module.eks_cluster]
