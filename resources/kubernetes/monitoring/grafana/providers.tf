@@ -1,3 +1,4 @@
+/*
 provider "kubernetes" {
   //  load_config_file = false
   host                   = data.template_file.kubernetes_cluster_endpoint.rendered
@@ -32,3 +33,4 @@ data "template_file" "kubernetes_cluster_ca" {
 data "aws_eks_cluster_auth" "kubernetes_token" {
   name = var.eks_cluster_name
 }
+*/

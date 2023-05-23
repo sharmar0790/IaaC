@@ -109,3 +109,8 @@ variable "single_nat_gw" {
   type    = bool
   default = false
 }
+
+variable "enable_prometheus_grafana" {
+  type    = bool
+  default = false
+}

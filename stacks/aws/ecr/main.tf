@@ -1,5 +1,5 @@
 module "ecr-repo" {
-  source = "../../../modules/aws/ecr-repo"
+  source = "../../../resources/aws/ecr-repo"
 
   for_each                 = var.repositories
   name                     = each.key

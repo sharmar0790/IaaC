@@ -1,7 +1,7 @@
 data "aws_availability_zones" "az" {}
 
 module "vpc" {
-  source = "../../../../modules/aws/vpc-subnets"
+  source = "../../../../resources/aws/vpc-subnets"
 
   vpc_name             = var.vpc_name
   vpc_cidr             = var.vpc_cidr

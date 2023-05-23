@@ -1,7 +1,7 @@
 data "aws_availability_zones" "az" {}
 
 module "vpc" {
-  source = "../../../../modules/aws/vpc"
+  source = "../../../../resources/aws/vpc"
 
   vpc_name             = var.vpc_name
   vpc_cidr             = var.vpc_cidr
@@ -11,7 +11,7 @@ module "vpc" {
 }
 
 module "public_subnets" {
-  source = "../../../../modules/aws/public_subnets"
+  source = "../../../../resources/aws/public_subnets"
 
   public_subnet_name                     = "Public-Subnet-${var.vpc_name}"
   public_subnet_cidr                     = var.public_subnet_cidr
@@ -24,7 +24,7 @@ module "public_subnets" {
 }
 
 module "nlb" {
-  source             = "../../../../modules/aws/elb/nlb"
+  source             = "../../../../resources/aws/elb/nlb"
   load_balancer_type = "network"
   lb_name            = var.lb_name
   public_subnet_ids  = module.public_subnets.subnet_ids

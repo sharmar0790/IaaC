@@ -1,7 +1,7 @@
 data "aws_availability_zones" "az" {}
 
 module "vpc" {
-  source = "../../../../modules/aws/vpc-subnets"
+  source = "../../../../resources/aws/vpc-subnets"
 
   vpc_name             = var.vpc_name
   vpc_cidr             = var.vpc_cidr
@@ -25,7 +25,7 @@ module "vpc" {
 }
 
 module "eks_security_group" {
-  source          = "../../../../modules/aws/security-group"
+  source          = "../../../../resources/aws/security-group"
   vpc_id          = module.vpc.vpc_id
   security_groups = var.eks_security_groups
   tags            = var.tags
@@ -33,7 +33,7 @@ module "eks_security_group" {
 }
 
 module "eks_cluster" {
-  source = "../../../../modules/aws/eks"
+  source = "../../../../resources/aws/eks"
 
   cw_logs_retention_in_days = var.cw_logs_retention_in_days
   public_subnet_ids         = module.vpc.public_subnet_ids
@@ -57,7 +57,7 @@ module "eks_cluster" {
 }
 
 module "load-balancer-controller" {
-  source = "../../../../modules/aws/alb-controller"
+  source = "../../../../resources/aws/alb-controller"
 
   aws_iam_openid_connect_provider_arn              = module.eks_cluster.aws_iam_openid_connect_provider_arn
   aws_iam_openid_connect_provider_extract_from_arn = module.eks_cluster.aws_iam_openid_connect_provider_extract_from_arn
@@ -67,7 +67,7 @@ module "load-balancer-controller" {
 }
 
 module "alb" {
-  source    = "../../../../modules/aws/elb/alb"
+  source    = "../../../../resources/aws/elb/alb"
   create_lb = var.create_lb
 
   lb_name = var.load_balancer_name
@@ -84,7 +84,7 @@ module "alb" {
 }
 
 module "alb_security_group" {
-  source          = "../../../../modules/aws/security-group"
+  source          = "../../../../resources/aws/security-group"
   vpc_id          = module.vpc.vpc_id
   security_groups = var.elb_security_groups
   tags            = var.tags
@@ -96,7 +96,7 @@ module "alb_security_group" {
 }
 
 module "sg_rule_eks_node_alb_ingress" {
-  source = "../../../../modules/aws/security_group_rule"
+  source = "../../../../resources/aws/security_group_rule"
 
   destination_security_group_id = module.eks_security_group.security_group_id[0]
   source_security_group_id      = module.alb_security_group.security_group_id[0]

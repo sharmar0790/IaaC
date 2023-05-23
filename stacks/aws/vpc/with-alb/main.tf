@@ -1,7 +1,7 @@
 data "aws_availability_zones" "az" {}
 
 module "vpc" {
-  source = "../../../../modules/aws/vpc"
+  source = "../../../../resources/aws/vpc"
 
   vpc_name             = var.vpc_name
   vpc_cidr             = var.vpc_cidr
@@ -11,7 +11,7 @@ module "vpc" {
 }
 
 module "public_subnets" {
-  source = "../../../../modules/aws/public_subnets"
+  source = "../../../../resources/aws/public_subnets"
 
   public_subnet_name                     = "Public-Subnet-${var.vpc_name}"
   public_subnet_cidr                     = var.public_subnet_cidr
@@ -24,7 +24,7 @@ module "public_subnets" {
 }
 
 module "alb_sg" {
-  source      = "../../../../modules/aws/security-group"
+  source      = "../../../../resources/aws/security-group"
   sg_name     = var.sg_name
   vpc_id      = module.vpc.vpc_id
   tags        = var.tags
@@ -32,7 +32,7 @@ module "alb_sg" {
 }
 
 module "alb" {
-  source = "../../../../modules/aws/elb/alb"
+  source = "../../../../resources/aws/elb/alb"
 
   lb_security_groups = [
   module.alb_sg.security_group_id]

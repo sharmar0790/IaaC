@@ -15,11 +15,12 @@ resource "random_password" "grafana" {
 }
 
 resource "helm_release" "grafana" {
-  chart      = "grafana"
-  name       = "grafana"
-  repository = "https://grafana.github.io/helm-charts"
+  count      = var.enable_grafana ? 1 : 0
+  chart      = var.grafana_chart
+  name       = var.grafana_name
+  repository = var.grafana_helm_repo
   namespace  = var.namespace
-  version    = "6.24.1"
+  version    = var.grafana_chart_version
 
   values = [
     templatefile("${path.module}/templates/grafana-values.yaml", {

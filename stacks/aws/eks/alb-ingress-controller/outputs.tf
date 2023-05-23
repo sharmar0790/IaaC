@@ -76,3 +76,7 @@ output "aws_iam_openid_connect_provider_extract_from_arn" {
 output "cluster_connect_command" {
   value = "aws eks --region eu-west-2 update-kubeconfig --name ${module.eks_cluster.eks_cluster_name}"
 }
+
+output "prometheus_grafana" {
+  value = module.prometheus_grafana
+}

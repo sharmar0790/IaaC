@@ -1,7 +1,7 @@
 data "aws_availability_zones" "az" {}
 
 module "vpc" {
-  source = "../../../../modules/aws/vpc-subnets"
+  source = "../../../../resources/aws/vpc-subnets"
 
   vpc_name             = var.vpc_name
   vpc_cidr             = var.vpc_cidr
@@ -25,7 +25,7 @@ module "vpc" {
 }
 
 module "eks_security_group" {
-  source          = "../../../../modules/aws/security-group"
+  source          = "../../../../resources/aws/security-group"
   vpc_id          = module.vpc.vpc_id
   security_groups = var.eks_security_groups
   tags            = var.tags
@@ -34,7 +34,7 @@ module "eks_security_group" {
 }
 
 module "eks_cluster" {
-  source = "../../../../modules/aws/eks"
+  source = "../../../../resources/aws/eks"
 
   cw_logs_retention_in_days = var.cw_logs_retention_in_days
   public_subnet_ids         = module.vpc.public_subnet_ids
@@ -53,16 +53,22 @@ module "eks_cluster" {
 
   vpc_name = var.vpc_name
 
-  depends_on = [
-  module.vpc]
+  depends_on = [module.vpc]
 }
 
 module "load-balancer-controller" {
-  source = "../../../../modules/aws/alb-controller"
-
+  source = "../../../../resources/aws/alb-controller"
   aws_iam_openid_connect_provider_arn              = module.eks_cluster.aws_iam_openid_connect_provider_arn
   aws_iam_openid_connect_provider_extract_from_arn = module.eks_cluster.aws_iam_openid_connect_provider_extract_from_arn
   eks_cluster_name                                 = module.eks_cluster.eks_cluster_name
   tags                                             = var.tags
   vpc_id                                           = module.vpc.vpc_id
+}
+
+module "prometheus_grafana" {
+  source = "../../../../resources/kubernetes/monitoring/prometheus_grafana"
+
+  enable_prometheus_grafana = var.enable_prometheus_grafana
+
+  depends_on = [module.eks_cluster]
 }

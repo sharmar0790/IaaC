@@ -5,7 +5,7 @@ locals {
 }
 
 terraform {
-  source = "${get_parent_terragrunt_dir()}//stacks/aws/eks/lb-controller"
+  source = "${get_parent_terragrunt_dir()}//stacks/aws/eks/alb-ingress-controller"
 }
 
 include {
@@ -66,16 +66,6 @@ inputs = {
 //          ipv6_cidr_blocks = ["::/0"]
           description = "Allow all incoming traffic from self"
         }
-      /*,
-        {
-          from_port = 0
-          protocol = "-1"
-          to_port = 0
-          self = true
-          cidr_blocks = ["0.0.0.0/0"]
-          ipv6_cidr_blocks = ["::/0"]
-          description = "Allow all outgoing traffic"
-        }*/
       ]
       egress = {
         from_port = 0
@@ -119,4 +109,6 @@ inputs = {
       }
     }
   ]
+
+  enable_prometheus_grafana = true
 }

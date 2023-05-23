@@ -1,7 +1,7 @@
 data "aws_availability_zones" "az" {}
 
 module "vpc" {
-  source = "../../../../modules/aws/vpc-subnets"
+  source = "../../../../resources/aws/vpc-subnets"
 
   vpc_name             = var.vpc_name
   vpc_cidr             = var.vpc_cidr
@@ -25,7 +25,7 @@ module "vpc" {
 }
 
 module "eks_security_group" {
-  source          = "../../../../modules/aws/security-group"
+  source          = "../../../../resources/aws/security-group"
   vpc_id          = module.vpc.vpc_id
   security_groups = var.eks_security_groups
   tags            = var.tags
@@ -33,7 +33,7 @@ module "eks_security_group" {
 }
 
 module "eks_cluster" {
-  source = "../../../../modules/aws/eks"
+  source = "../../../../resources/aws/eks"
 
   cw_logs_retention_in_days = var.cw_logs_retention_in_days
   public_subnet_ids         = module.vpc.public_subnet_ids
@@ -57,7 +57,7 @@ module "eks_cluster" {
 
 module "bastion_host" {
   count  = var.enable_bastion_host ? 1 : 0
-  source = "../../../../modules/aws/ec2-instance"
+  source = "../../../../resources/aws/ec2-instance"
 
   owners                       = var.owners
   tags                         = var.tags
