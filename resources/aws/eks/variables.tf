@@ -46,7 +46,9 @@ variable "endpoint_public_access" {
   type    = bool
 }
 
-variable "cluster_security_groups_id" {}
+variable "cluster_security_groups_id" {
+  default = ""
+}
 
 
 variable "create_node_group" {

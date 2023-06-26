@@ -10,8 +10,8 @@ resource "aws_eks_cluster" "main" {
     subnet_ids              = var.public_subnet_ids
     endpoint_public_access  = var.endpoint_public_access
     endpoint_private_access = true
-    security_group_ids = [
-    var.cluster_security_groups_id]
+    security_group_ids = try([
+    var.cluster_security_groups_id], null)
   }
 
   // valid types are "api","audit", "controllerManager","scheduler","authenticator"
@@ -21,7 +21,6 @@ resource "aws_eks_cluster" "main" {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared",
     "Cluster-name"                              = var.cluster_name
   }, var.tags)
-
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling.
   # Otherwise, EKS will not be able to properly delete EKS managed EC2 infrastructure such as Security Groups.

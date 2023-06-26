@@ -91,13 +91,11 @@ output "eks_managed_node_groups_autoscaling_group_names_public" {
 }
 
 output "eks_managed_node_groups_names_public" {
-  description = "List of the autoscaling group names created by EKS managed node groups"
-  value       = try(flatten(aws_eks_node_group.public_subnet_node_group[*].arn), [])
+  value = try(flatten(aws_eks_node_group.public_subnet_node_group[*].arn), [])
 }
 
 output "eks_managed_node_groups_names_private" {
-  description = "List of the autoscaling group names created by EKS managed node groups"
-  value       = try(flatten(aws_eks_node_group.private_subnet_node_group[*].arn), [])
+  value = try(flatten(aws_eks_node_group.private_subnet_node_group[*].arn), [])
 }
 
 output "eks_managed_node_groups_autoscaling_group_names_private" {
@@ -111,5 +109,13 @@ output "eks_managed_node_groups_node_role_arn_private" {
 
 output "config_file" {
   value = local_file.config.source
+}
+
+output "cluster_security_group_id" {
+  value = aws_eks_cluster.main.vpc_config[0].cluster_security_group_id
+}
+
+output "security_group_ids" {
+  value = aws_eks_cluster.main.vpc_config[0].security_group_ids
 }
 

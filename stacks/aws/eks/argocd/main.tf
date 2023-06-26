@@ -24,15 +24,6 @@ module "vpc" {
   private_subnet_cidrs = var.private_subnet_cidrs
 }
 
-module "eks_security_group" {
-  source          = "../../../../resources/aws/security-group"
-  vpc_id          = module.vpc.vpc_id
-  security_groups = var.eks_security_groups
-  tags            = var.tags
-  depends_on = [
-  module.vpc]
-}
-
 module "eks_cluster" {
   source = "../../../../resources/aws/eks"
 
@@ -43,9 +34,9 @@ module "eks_cluster" {
   enabled_cluster_log_types = var.enabled_cluster_log_types
   eks_cluster_addons        = var.eks_cluster_addons
 
-  tags                       = var.tags
-  endpoint_public_access     = var.endpoint_public_access
-  cluster_security_groups_id = module.eks_security_group.security_group_id[0]
+  tags                   = var.tags
+  endpoint_public_access = var.endpoint_public_access
+  //  cluster_security_groups_id = module.eks_security_group.security_group_id[0]
 
   create_node_group          = var.create_node_group
   public_subnet_node_groups  = var.public_subnet_node_groups
@@ -56,19 +47,16 @@ module "eks_cluster" {
   depends_on = [module.vpc]
 }
 
-module "load-balancer-controller" {
-  source                                           = "../../../../resources/aws/alb-controller"
-  aws_iam_openid_connect_provider_arn              = module.eks_cluster.aws_iam_openid_connect_provider_arn
-  aws_iam_openid_connect_provider_extract_from_arn = module.eks_cluster.aws_iam_openid_connect_provider_extract_from_arn
-  eks_cluster_name                                 = module.eks_cluster.eks_cluster_name
-  tags                                             = var.tags
-  vpc_id                                           = module.vpc.vpc_id
+module "eks_security_group_rule" {
+  source = "../../../../resources/aws/security_group_rule"
+
+  destination_security_group_id = module.eks_cluster.cluster_security_group_id
 }
 
-module "prometheus_grafana" {
-  source = "../../../../resources/kubernetes/monitoring/prometheus_grafana"
+module "argocd" {
+  source = "../../../../resources/kubernetes/add-ons/argocd"
 
-  enable_prometheus_grafana = var.enable_prometheus_grafana
+  argocd_helm_chart_version = "4.9.7"
 
   depends_on = [module.eks_cluster]
 }

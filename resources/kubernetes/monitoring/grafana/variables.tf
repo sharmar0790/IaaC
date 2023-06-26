@@ -1,10 +1,10 @@
 variable "enable_grafana" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 variable "namespace" {
-  type        = string
-  default     = "grafana"
+  type    = string
+  default = "grafana"
 }
 
 variable "grafana_chart" {
@@ -28,8 +28,8 @@ variable "grafana_chart_version" {
 }
 
 variable "prometheus_name" {
-  type    = string
-//  default = "6.24.1"
+  type = string
+  //  default = "6.24.1"
 }
 
 variable "eks_cluster_certificate_authority" {}

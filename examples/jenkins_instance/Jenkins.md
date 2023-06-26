@@ -12,6 +12,3 @@ http://<IP or the hostname>:8080/
 - Install Suggested plugins/or choose.
 - Set username and password.
 -
-
-
-035864429412

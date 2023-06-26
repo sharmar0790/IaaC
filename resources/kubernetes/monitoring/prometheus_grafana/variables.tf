@@ -42,7 +42,7 @@ variable "prometheus_grafana_values" {
       }
     }
   }*/
-  default = {}
+  default     = {}
   description = "Additional settings which will be passed to Prometheus Helm chart values."
 }
 

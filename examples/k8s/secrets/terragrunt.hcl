@@ -16,7 +16,7 @@ inputs = {
 
   kubernetes_secrets = {
     "docker-registry" = {
-      registry_server = "035864429412.dkr.ecr.eu-west-2.amazonaws.com"
+      registry_server = "<AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION_CODE>.amazonaws.com"
       registry_username = "AWS"
       //      registry_password = "$(aws ecr get-login-password)"
       registry_email = "abc@abc.com"

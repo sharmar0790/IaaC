@@ -15,10 +15,9 @@ variable "protocol" {
   type    = string
 }
 variable "destination_security_group_id" {
-  type    = string
-  default = ""
+  type = string
 }
 variable "source_security_group_id" {
   type    = string
-  default = ""
+  default = null
 }
